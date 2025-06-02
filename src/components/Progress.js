@@ -73,6 +73,7 @@ const Progress = ({ workouts }) => {
       .filter(workout => 
         workout.exercises.some(ex => ex.name === exerciseName)
       )
+      .sort((a, b) => new Date(a.date) - new Date(b.date))
       .map(workout => {
         const exercise = workout.exercises.find(ex => ex.name === exerciseName);
         const volume = calculateVolume(exercise.sets);
@@ -139,12 +140,13 @@ const Progress = ({ workouts }) => {
 
   const getVolumeData = () => {
     if (selectedExercise === 'all') {
-      // Show total volume across all exercises
+      // Show total volume across all exercises, sorted chronologically
+      const sortedWorkouts = [...workouts].sort((a, b) => new Date(a.date) - new Date(b.date));
       return {
-        labels: workouts.map(w => format(new Date(w.date), 'MMM d')),
+        labels: sortedWorkouts.map(w => format(new Date(w.date), 'MMM d')),
         datasets: [{
           label: 'Total Volume (lbs × reps)',
-          data: workouts.map(w => 
+          data: sortedWorkouts.map(w => 
             w.exercises.reduce((sum, ex) => sum + calculateVolume(ex.sets), 0)
           ),
           borderColor: '#1976d2',
@@ -174,20 +176,26 @@ const Progress = ({ workouts }) => {
           workout.exercises.some(ex => ex.name === selectedExercise)
         );
     
-    filteredWorkouts.forEach(workout => {
+    // Sort workouts chronologically before processing
+    const sortedWorkouts = [...filteredWorkouts].sort((a, b) => new Date(a.date) - new Date(b.date));
+    
+    sortedWorkouts.forEach(workout => {
       const month = format(new Date(workout.date), 'MMM yyyy');
       frequency[month] = (frequency[month] || 0) + 1;
     });
+    
+    // Sort the frequency data by month order
+    const sortedMonths = Object.keys(frequency).sort((a, b) => new Date(a) - new Date(b));
     
     const label = selectedExercise === 'all' 
       ? 'Workouts per Month' 
       : `${selectedExercise} Workouts per Month`;
     
     return {
-      labels: Object.keys(frequency),
+      labels: sortedMonths,
       datasets: [{
         label: label,
-        data: Object.values(frequency),
+        data: sortedMonths.map(month => frequency[month]),
         backgroundColor: '#1976d2',
         borderColor: '#1976d2',
         borderWidth: 1
