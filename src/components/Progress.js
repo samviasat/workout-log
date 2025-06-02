@@ -43,7 +43,7 @@ ChartJS.register(
 );
 
 const Progress = ({ workouts }) => {
-  const [selectedExercise, setSelectedExercise] = React.useState(null);
+  const [selectedExercise, setSelectedExercise] = React.useState('');
   const [selectedView, setSelectedView] = React.useState('strength');
 
   const getExerciseData = (exerciseName) => {
@@ -137,21 +137,22 @@ const Progress = ({ workouts }) => {
     <Container>
       <Box sx={{ mb: 4 }}>
         <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} sm={6} md={7}>
             <FormControl fullWidth>
               <InputLabel>Exercise</InputLabel>
               <Select
                 value={selectedExercise}
                 onChange={(e) => setSelectedExercise(e.target.value)}
+                displayEmpty
               >
-                <MenuItem value={null}>All Exercises</MenuItem>
+                <MenuItem value="">All Exercises</MenuItem>
                 {exercises.map(exercise => (
                   <MenuItem key={exercise} value={exercise}>{exercise}</MenuItem>
                 ))}
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} sm={6} md={5}>
             <FormControl fullWidth>
               <InputLabel>View</InputLabel>
               <Select
