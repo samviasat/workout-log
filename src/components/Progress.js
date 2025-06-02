@@ -143,6 +143,7 @@ const Progress = ({ workouts }) => {
               <Select
                 value={selectedExercise}
                 onChange={(e) => setSelectedExercise(e.target.value)}
+                label="Exercise"
                 displayEmpty
               >
                 <MenuItem value="">All Exercises</MenuItem>
@@ -158,6 +159,7 @@ const Progress = ({ workouts }) => {
               <Select
                 value={selectedView}
                 onChange={(e) => setSelectedView(e.target.value)}
+                label="View"
               >
                 <MenuItem value="strength">Strength Progress</MenuItem>
                 <MenuItem value="volume">Volume Progress</MenuItem>

@@ -148,6 +148,7 @@ const ExerciseList = ({ exercises, setExercises }) => {
             <Select
               value={newExercise.type}
               onChange={(e) => setNewExercise({ ...newExercise, type: e.target.value })}
+              label="Type"
             >
               {Object.values(EXERCISE_TYPES).map((type) => (
                 <MenuItem key={type} value={type}>{type}</MenuItem>
@@ -160,6 +161,7 @@ const ExerciseList = ({ exercises, setExercises }) => {
               multiple
               value={newExercise.muscleGroups}
               onChange={(e) => setNewExercise({ ...newExercise, muscleGroups: e.target.value })}
+              label="Muscle Groups"
             >
               {Object.values(MUSCLE_GROUPS).map((group) => (
                 <MenuItem key={group} value={group}>{group}</MenuItem>
