@@ -43,7 +43,7 @@ ChartJS.register(
 );
 
 const Progress = ({ workouts }) => {
-  const [selectedExercise, setSelectedExercise] = React.useState('');
+  const [selectedExercise, setSelectedExercise] = React.useState('all');
   const [selectedView, setSelectedView] = React.useState('strength');
 
   const getExerciseData = (exerciseName) => {
@@ -64,7 +64,7 @@ const Progress = ({ workouts }) => {
   };
 
   const getStrengthData = () => {
-    if (!selectedExercise) return null;
+    if (!selectedExercise || selectedExercise === 'all') return null;
     const data = getExerciseData(selectedExercise);
     return {
       labels: data.map(d => d.date),
@@ -144,9 +144,8 @@ const Progress = ({ workouts }) => {
                 value={selectedExercise}
                 onChange={(e) => setSelectedExercise(e.target.value)}
                 label="Exercise"
-                displayEmpty
               >
-                <MenuItem value="">All Exercises</MenuItem>
+                <MenuItem value="all">All Exercises</MenuItem>
                 {exercises.map(exercise => (
                   <MenuItem key={exercise} value={exercise}>{exercise}</MenuItem>
                 ))}
@@ -172,7 +171,7 @@ const Progress = ({ workouts }) => {
       </Box>
 
       <Grid container spacing={3}>
-        {selectedView === 'strength' && selectedExercise && (
+        {selectedView === 'strength' && selectedExercise && selectedExercise !== 'all' && (
           <Grid item xs={12}>
             <Paper sx={{ p: 2 }}>
               <Typography variant="h6" gutterBottom>
