@@ -8,12 +8,12 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  Box
+  Box,
+  Alert
 } from '@mui/material';
 import { 
   Line,
-  Bar,
-  Pie
+  Bar
 } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -45,6 +45,28 @@ ChartJS.register(
 const Progress = ({ workouts }) => {
   const [selectedExercise, setSelectedExercise] = React.useState('all');
   const [selectedView, setSelectedView] = React.useState('strength');
+  const [showDistributionAlert, setShowDistributionAlert] = React.useState(false);
+
+  const handleViewChange = (e) => {
+    const newView = e.target.value;
+    if (newView === 'distribution' && selectedExercise !== 'all') {
+      setShowDistributionAlert(true);
+      // Don't change the view, keep it as is
+      return;
+    }
+    setShowDistributionAlert(false);
+    setSelectedView(newView);
+  };
+
+  const handleExerciseChange = (e) => {
+    setSelectedExercise(e.target.value);
+    // Hide alert when exercise changes
+    setShowDistributionAlert(false);
+    // If user selects a specific exercise while on distribution view, change to strength view
+    if (e.target.value !== 'all' && selectedView === 'distribution') {
+      setSelectedView('strength');
+    }
+  };
 
   const getExerciseData = (exerciseName) => {
     return workouts
@@ -100,6 +122,7 @@ const Progress = ({ workouts }) => {
     return {
       labels: Object.keys(muscleGroups),
       datasets: [{
+        label: 'Exercise Count',
         data: Object.values(muscleGroups),
         backgroundColor: [
           '#1976d2',
@@ -185,7 +208,7 @@ const Progress = ({ workouts }) => {
               <InputLabel>Exercise</InputLabel>
               <Select
                 value={selectedExercise}
-                onChange={(e) => setSelectedExercise(e.target.value)}
+                onChange={handleExerciseChange}
                 label="Exercise"
               >
                 <MenuItem value="all">All Exercises</MenuItem>
@@ -200,7 +223,7 @@ const Progress = ({ workouts }) => {
               <InputLabel>View</InputLabel>
               <Select
                 value={selectedView}
-                onChange={(e) => setSelectedView(e.target.value)}
+                onChange={handleViewChange}
                 label="View"
               >
                 <MenuItem value="strength">Strength Progress</MenuItem>
@@ -212,6 +235,15 @@ const Progress = ({ workouts }) => {
           </Grid>
         </Grid>
       </Box>
+
+      {showDistributionAlert && (
+        <Box sx={{ mb: 2 }}>
+          <Alert severity="warning" onClose={() => setShowDistributionAlert(false)}>
+            Muscle Group Distribution is only available when "All Exercises" is selected. 
+            Please select "All Exercises" to view muscle group distribution.
+          </Alert>
+        </Box>
+      )}
 
       <Grid container spacing={3}>
         {selectedView === 'strength' && selectedExercise && selectedExercise !== 'all' && (
@@ -253,7 +285,7 @@ const Progress = ({ workouts }) => {
               <Typography variant="h6" gutterBottom>
                 Muscle Group Distribution
               </Typography>
-              <Pie data={getMuscleGroupDistribution()} />
+              <Bar data={getMuscleGroupDistribution()} />
             </Paper>
           </Grid>
         )}
