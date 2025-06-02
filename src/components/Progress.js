@@ -114,16 +114,56 @@ const Progress = ({ workouts }) => {
     };
   };
 
+  const getVolumeData = () => {
+    if (selectedExercise === 'all') {
+      // Show total volume across all exercises
+      return {
+        labels: workouts.map(w => format(new Date(w.date), 'MMM d')),
+        datasets: [{
+          label: 'Total Volume (lbs × reps)',
+          data: workouts.map(w => 
+            w.exercises.reduce((sum, ex) => sum + calculateVolume(ex.sets), 0)
+          ),
+          borderColor: '#1976d2',
+          tension: 0.1
+        }]
+      };
+    } else {
+      // Show volume for selected exercise only
+      const data = getExerciseData(selectedExercise);
+      return {
+        labels: data.map(d => d.date),
+        datasets: [{
+          label: `${selectedExercise} Volume (lbs × reps)`,
+          data: data.map(d => d.volume),
+          borderColor: '#1976d2',
+          tension: 0.1
+        }]
+      };
+    }
+  };
+
   const getWorkoutFrequency = () => {
     const frequency = {};
-    workouts.forEach(workout => {
+    const filteredWorkouts = selectedExercise === 'all' 
+      ? workouts 
+      : workouts.filter(workout => 
+          workout.exercises.some(ex => ex.name === selectedExercise)
+        );
+    
+    filteredWorkouts.forEach(workout => {
       const month = format(new Date(workout.date), 'MMM yyyy');
       frequency[month] = (frequency[month] || 0) + 1;
     });
+    
+    const label = selectedExercise === 'all' 
+      ? 'Workouts per Month' 
+      : `${selectedExercise} Workouts per Month`;
+    
     return {
       labels: Object.keys(frequency),
       datasets: [{
-        label: 'Workouts per Month',
+        label: label,
         data: Object.values(frequency),
         backgroundColor: '#1976d2',
         borderColor: '#1976d2',
@@ -189,21 +229,9 @@ const Progress = ({ workouts }) => {
           <Grid item xs={12}>
             <Paper sx={{ p: 2 }}>
               <Typography variant="h6" gutterBottom>
-                Total Volume Progress
+                {selectedExercise === 'all' ? 'Total Volume Progress' : `${selectedExercise} Volume Progress`}
               </Typography>
-              <Line
-                data={{
-                  labels: workouts.map(w => format(new Date(w.date), 'MMM d')),
-                  datasets: [{
-                    label: 'Total Volume (lbs × reps)',
-                    data: workouts.map(w => 
-                      w.exercises.reduce((sum, ex) => sum + calculateVolume(ex.sets), 0)
-                    ),
-                    borderColor: '#1976d2',
-                    tension: 0.1
-                  }]
-                }}
-              />
+              <Line data={getVolumeData()} />
             </Paper>
           </Grid>
         )}
@@ -212,14 +240,14 @@ const Progress = ({ workouts }) => {
           <Grid item xs={12}>
             <Paper sx={{ p: 2 }}>
               <Typography variant="h6" gutterBottom>
-                Workout Frequency
+                {selectedExercise === 'all' ? 'Workout Frequency' : `${selectedExercise} Workout Frequency`}
               </Typography>
               <Bar data={getWorkoutFrequency()} />
             </Paper>
           </Grid>
         )}
 
-        {selectedView === 'distribution' && (
+        {selectedView === 'distribution' && selectedExercise === 'all' && (
           <Grid item xs={12}>
             <Paper sx={{ p: 2 }}>
               <Typography variant="h6" gutterBottom>
