@@ -89,9 +89,12 @@ const Progress = ({ workouts }) => {
     const muscleGroups = {};
     workouts.forEach(workout => {
       workout.exercises.forEach(exercise => {
-        exercise.muscleGroups.forEach(group => {
-          muscleGroups[group] = (muscleGroups[group] || 0) + 1;
-        });
+        // Check if muscleGroups exists and is an array before trying to iterate
+        if (exercise.muscleGroups && Array.isArray(exercise.muscleGroups)) {
+          exercise.muscleGroups.forEach(group => {
+            muscleGroups[group] = (muscleGroups[group] || 0) + 1;
+          });
+        }
       });
     });
     return {
