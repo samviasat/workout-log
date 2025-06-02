@@ -6,11 +6,6 @@ import {
   TextField,
   Button,
   Box,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Chip,
   IconButton,
   Dialog,
   DialogTitle,
@@ -23,8 +18,8 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
-import { format, parseISO } from 'date-fns';
-import { calculateOneRepMax, calculateVolume, formatDuration } from '../utils/workoutUtils';
+import { format } from 'date-fns';
+import { calculateOneRepMax } from '../utils/workoutUtils';
 
 const NewWorkout = ({ exercises, addWorkout, updateWorkout, selectedWorkout }) => {
   const [workout, setWorkout] = useState({
@@ -35,6 +30,7 @@ const NewWorkout = ({ exercises, addWorkout, updateWorkout, selectedWorkout }) =
     notes: '',
     duration: 0
   });
+  const [exerciseDialogOpen, setExerciseDialogOpen] = useState(false);
 
   useEffect(() => {
     if (selectedWorkout) {
@@ -55,6 +51,7 @@ const NewWorkout = ({ exercises, addWorkout, updateWorkout, selectedWorkout }) =
         }]
       }]
     });
+    setExerciseDialogOpen(false);
   };
 
   const handleRemoveExercise = (index) => {
@@ -135,6 +132,14 @@ const NewWorkout = ({ exercises, addWorkout, updateWorkout, selectedWorkout }) =
           <Typography variant="h6" gutterBottom>
             Exercises
           </Typography>
+          <Button
+            variant="outlined"
+            startIcon={<AddIcon />}
+            onClick={() => setExerciseDialogOpen(true)}
+            sx={{ mb: 1 }}
+          >
+            Add Exercise
+          </Button>
           <Paper sx={{ p: 1 }}>
             {workout.exercises.map((exercise, exerciseIndex) => (
               <Box key={exerciseIndex} sx={{ mb: 2 }}>
@@ -281,7 +286,7 @@ const NewWorkout = ({ exercises, addWorkout, updateWorkout, selectedWorkout }) =
           </Button>
         </Box>
 
-        <Dialog open={exercises.length > 0} onClose={() => {}}>
+        <Dialog open={exerciseDialogOpen} onClose={() => setExerciseDialogOpen(false)}>
           <DialogTitle>Add Exercise</DialogTitle>
           <DialogContent>
             <List>
@@ -301,6 +306,11 @@ const NewWorkout = ({ exercises, addWorkout, updateWorkout, selectedWorkout }) =
               ))}
             </List>
           </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setExerciseDialogOpen(false)}>
+              Cancel
+            </Button>
+          </DialogActions>
         </Dialog>
       </Paper>
     </Container>
