@@ -51,6 +51,7 @@ const NewWorkout = ({ exercises, addWorkout, updateWorkout, selectedWorkout, cle
       exercises: [...workout.exercises, {
         exerciseId: exercise.id,
         name: exercise.name,
+        muscleGroups: exercise.muscleGroups,
         sets: [{
           weight: '',
           reps: '',
