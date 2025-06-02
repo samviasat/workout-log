@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Container, 
   Paper, 
@@ -21,7 +22,8 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import { format } from 'date-fns';
 import { calculateOneRepMax } from '../utils/workoutUtils';
 
-const NewWorkout = ({ exercises, addWorkout, updateWorkout, selectedWorkout }) => {
+const NewWorkout = ({ exercises, addWorkout, updateWorkout, selectedWorkout, clearSelectedWorkout }) => {
+  const navigate = useNavigate();
   const [workout, setWorkout] = useState({
     id: Date.now(),
     date: format(new Date(), 'yyyy-MM-dd'),
@@ -35,8 +37,13 @@ const NewWorkout = ({ exercises, addWorkout, updateWorkout, selectedWorkout }) =
   useEffect(() => {
     if (selectedWorkout) {
       setWorkout(selectedWorkout);
+    } else {
+      // Clear any previously selected workout when creating a new one
+      if (clearSelectedWorkout) {
+        clearSelectedWorkout();
+      }
     }
-  }, [selectedWorkout]);
+  }, [selectedWorkout, clearSelectedWorkout]);
 
   const handleAddExercise = (exercise) => {
     setWorkout({
@@ -95,6 +102,8 @@ const NewWorkout = ({ exercises, addWorkout, updateWorkout, selectedWorkout }) =
     } else {
       addWorkout(workout);
     }
+    
+    // Clear the form
     setWorkout({
       id: Date.now(),
       date: format(new Date(), 'yyyy-MM-dd'),
@@ -103,6 +112,12 @@ const NewWorkout = ({ exercises, addWorkout, updateWorkout, selectedWorkout }) =
       notes: '',
       duration: 0
     });
+    
+    // Clear selected workout and navigate back to workout list
+    if (clearSelectedWorkout) {
+      clearSelectedWorkout();
+    }
+    navigate('/');
   };
 
   return (

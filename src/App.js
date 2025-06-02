@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { Container, AppBar, Toolbar, Typography, Button } from '@mui/material';
 
 import WorkoutList from './components/WorkoutList';
@@ -59,10 +59,10 @@ function App() {
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               Workout Log
             </Typography>
-            <Button color="inherit" href="/">Workout Log</Button>
-            <Button color="inherit" href="/new">New Workout</Button>
-            <Button color="inherit" href="/exercises">Exercises</Button>
-            <Button color="inherit" href="/progress">Progress</Button>
+            <Button color="inherit" component={Link} to="/">Workout Log</Button>
+            <Button color="inherit" component={Link} to="/new">New Workout</Button>
+            <Button color="inherit" component={Link} to="/exercises">Exercises</Button>
+            <Button color="inherit" component={Link} to="/progress">Progress</Button>
           </Toolbar>
         </AppBar>
         <Container sx={{ mt: 4 }}>
@@ -77,6 +77,7 @@ function App() {
               addWorkout={addWorkout}
               selectedWorkout={selectedWorkout}
               updateWorkout={updateWorkout}
+              clearSelectedWorkout={() => setSelectedWorkout(null)}
             />} />
             <Route path="/exercises" element={<ExerciseList 
               exercises={exercises} 
