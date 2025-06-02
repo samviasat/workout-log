@@ -30,6 +30,9 @@ const WorkoutList = ({ workouts, deleteWorkout, selectWorkout }) => {
     navigate('/new');
   };
 
+  // Sort workouts by date in descending order (newest first)
+  const sortedWorkouts = [...workouts].sort((a, b) => new Date(b.date) - new Date(a.date));
+
   return (
     <Container>
       <TableContainer component={Paper}>
@@ -44,7 +47,7 @@ const WorkoutList = ({ workouts, deleteWorkout, selectWorkout }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {workouts.map((workout) => (
+            {sortedWorkouts.map((workout) => (
               <TableRow key={workout.id}>
                 <TableCell>{new Date(workout.date).toLocaleDateString()}</TableCell>
                 <TableCell>{workout.name}</TableCell>
