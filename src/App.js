@@ -62,6 +62,7 @@ function App() {
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               Workout Log
             </Typography>
+            <Button color="inherit" href="/">Workout Log</Button>
             <Button color="inherit" href="/new">New Workout</Button>
             <Button color="inherit" href="/exercises">Exercises</Button>
             <Button color="inherit" href="/progress">Progress</Button>
