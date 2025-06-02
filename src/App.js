@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Container, AppBar, Toolbar, Typography, Button, IconButton } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
+import { Container, AppBar, Toolbar, Typography, Button } from '@mui/material';
+
 import WorkoutList from './components/WorkoutList';
 import NewWorkout from './components/NewWorkout';
 import ExerciseList from './components/ExerciseList';
@@ -56,9 +56,6 @@ function App() {
       <Router>
         <AppBar position="static">
           <Toolbar>
-            <IconButton edge="start" color="inherit" aria-label="menu">
-              <MenuIcon />
-            </IconButton>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               Workout Log
             </Typography>
