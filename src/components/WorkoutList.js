@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Container, 
   Paper, 
@@ -16,6 +17,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import { formatDuration } from '../utils/workoutUtils';
 
 const WorkoutList = ({ workouts, deleteWorkout, selectWorkout }) => {
+  const navigate = useNavigate();
 
   const handleDelete = (workoutId) => {
     if (window.confirm('Are you sure you want to delete this workout?')) {
@@ -25,6 +27,7 @@ const WorkoutList = ({ workouts, deleteWorkout, selectWorkout }) => {
 
   const handleSelect = (workout) => {
     selectWorkout(workout);
+    navigate('/new');
   };
 
   return (
