@@ -26,14 +26,26 @@ function App() {
   const [workouts, setWorkouts] = useState([]);
   const [exercises, setExercises] = useState(DEFAULT_EXERCISES);
   const [selectedWorkout, setSelectedWorkout] = useState(null);
+  const [workoutOrder, setWorkoutOrder] = useState([]);
 
   useEffect(() => {
     const savedWorkouts = JSON.parse(localStorage.getItem('workouts')) || [];
+    const savedOrder = JSON.parse(localStorage.getItem('workoutOrder')) || savedWorkouts.map(w => w.id);
     setWorkouts(savedWorkouts);
+    setWorkoutOrder(savedOrder);
   }, []);
 
   useEffect(() => {
     localStorage.setItem('workouts', JSON.stringify(workouts));
+    // Update order whenever workouts change to ensure consistency
+    setWorkoutOrder(prevOrder => {
+      // Add new workouts to the beginning of the order
+      const newWorkoutIds = workouts.map(w => w.id).filter(id => !prevOrder.includes(id));
+      // Remove deleted workouts from the order
+      const updatedOrder = [...newWorkoutIds, ...prevOrder.filter(id => workouts.some(w => w.id === id))];
+      localStorage.setItem('workoutOrder', JSON.stringify(updatedOrder));
+      return updatedOrder;
+    });
   }, [workouts]);
 
   const addWorkout = (workout) => {
@@ -48,6 +60,26 @@ function App() {
 
   const deleteWorkout = (workoutId) => {
     setWorkouts(workouts.filter(workout => workout.id !== workoutId));
+  };
+
+  // New function to handle workout reordering
+  const reorderWorkouts = (newOrder) => {
+    localStorage.setItem('workoutOrder', JSON.stringify(newOrder));
+    setWorkoutOrder(newOrder);
+  };
+
+  // Function to get workouts in the correct order
+  const getOrderedWorkouts = () => {
+    const orderedWorkouts = [...workouts];
+    orderedWorkouts.sort((a, b) => {
+      const aIndex = workoutOrder.indexOf(a.id);
+      const bIndex = workoutOrder.indexOf(b.id);
+      if (aIndex === -1 && bIndex === -1) return 0;
+      if (aIndex === -1) return 1;
+      if (bIndex === -1) return -1;
+      return aIndex - bIndex;
+    });
+    return orderedWorkouts;
   };
 
   return (
@@ -68,9 +100,10 @@ function App() {
         <Container sx={{ mt: 4 }}>
           <Routes>
             <Route path="/" element={<WorkoutList 
-              workouts={workouts} 
+              workouts={getOrderedWorkouts()} 
               deleteWorkout={deleteWorkout} 
-              selectWorkout={setSelectedWorkout} 
+              selectWorkout={setSelectedWorkout}
+              onReorder={(reorderedWorkouts) => reorderWorkouts(reorderedWorkouts.map(w => w.id))}
             />} />
             <Route path="/new" element={<NewWorkout 
               exercises={exercises} 
