@@ -23,8 +23,51 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { formatDuration } from '../utils/workoutUtils';
+
+const SortableTableRow = ({ workout, children }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: workout.id.toString() });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    backgroundColor: isDragging ? 'rgba(25, 118, 210, 0.08)' : undefined,
+    cursor: 'move',
+    zIndex: isDragging ? 1 : 0,
+  };
+
+  return (
+    <TableRow ref={setNodeRef} style={style}>
+      <TableCell {...attributes} {...listeners}>
+        <DragIndicatorIcon />
+      </TableCell>
+      {children}
+    </TableRow>
+  );
+};
 
 const WorkoutList = ({ workouts, deleteWorkout, selectWorkout, onReorder }) => {
   const navigate = useNavigate();
@@ -32,10 +75,16 @@ const WorkoutList = ({ workouts, deleteWorkout, selectWorkout, onReorder }) => {
   const [selectedWorkoutView, setSelectedWorkoutView] = useState(null);
   const [orderedWorkouts, setOrderedWorkouts] = useState(workouts);
 
-  // Update orderedWorkouts when workouts prop changes
   React.useEffect(() => {
     setOrderedWorkouts(workouts);
   }, [workouts]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const handleDelete = (workoutId) => {
     if (window.confirm('Are you sure you want to delete this workout?')) {
@@ -58,20 +107,25 @@ const WorkoutList = ({ workouts, deleteWorkout, selectWorkout, onReorder }) => {
     setSelectedWorkoutView(null);
   };
 
-  const onDragEnd = (result) => {
-    if (!result.destination) return;
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
 
-    const items = Array.from(orderedWorkouts);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
+    const oldIndex = orderedWorkouts.findIndex(w => w.id.toString() === active.id);
+    const newIndex = orderedWorkouts.findIndex(w => w.id.toString() === over.id);
 
-    setOrderedWorkouts(items);
-    onReorder(items);
+    const newWorkouts = arrayMove(orderedWorkouts, oldIndex, newIndex);
+    setOrderedWorkouts(newWorkouts);
+    onReorder(newWorkouts);
   };
 
   return (
     <Container>
-      <DragDropContext onDragEnd={onDragEnd}>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
@@ -84,55 +138,41 @@ const WorkoutList = ({ workouts, deleteWorkout, selectWorkout, onReorder }) => {
                 <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
-            <Droppable droppableId="workouts">
-              {(provided) => (
-                <TableBody {...provided.droppableProps} ref={provided.innerRef}>
-                  {orderedWorkouts.map((workout, index) => (
-                    <Draggable key={workout.id} draggableId={workout.id.toString()} index={index}>
-                      {(provided, snapshot) => (
-                        <TableRow
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          style={{
-                            ...provided.draggableProps.style,
-                            background: snapshot.isDragging ? 'rgba(25, 118, 210, 0.08)' : 'transparent'
-                          }}
-                        >
-                          <TableCell {...provided.dragHandleProps}>
-                            <DragIndicatorIcon />
-                          </TableCell>
-                          <TableCell>{new Date(workout.date).toLocaleDateString()}</TableCell>
-                          <TableCell>{workout.name}</TableCell>
-                          <TableCell>
-                            {workout.exercises.map((exercise) => (
-                              <Chip key={exercise.name} label={exercise.name} size="small" />
-                            ))}
-                          </TableCell>
-                          <TableCell>
-                            {workout.duration ? formatDuration(workout.duration * 60) : '-'}
-                          </TableCell>
-                          <TableCell>
-                            <IconButton onClick={() => handleView(workout)}>
-                              <VisibilityIcon />
-                            </IconButton>
-                            <IconButton onClick={() => handleSelect(workout)}>
-                              <EditIcon />
-                            </IconButton>
-                            <IconButton onClick={() => handleDelete(workout.id)}>
-                              <DeleteIcon />
-                            </IconButton>
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-                </TableBody>
-              )}
-            </Droppable>
+            <TableBody>
+              <SortableContext
+                items={orderedWorkouts.map(w => w.id.toString())}
+                strategy={verticalListSortingStrategy}
+              >
+                {orderedWorkouts.map((workout) => (
+                  <SortableTableRow key={workout.id} workout={workout}>
+                    <TableCell>{new Date(workout.date).toLocaleDateString()}</TableCell>
+                    <TableCell>{workout.name}</TableCell>
+                    <TableCell>
+                      {workout.exercises.map((exercise) => (
+                        <Chip key={exercise.name} label={exercise.name} size="small" />
+                      ))}
+                    </TableCell>
+                    <TableCell>
+                      {workout.duration ? formatDuration(workout.duration * 60) : '-'}
+                    </TableCell>
+                    <TableCell>
+                      <IconButton onClick={() => handleView(workout)}>
+                        <VisibilityIcon />
+                      </IconButton>
+                      <IconButton onClick={() => handleSelect(workout)}>
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton onClick={() => handleDelete(workout.id)}>
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </SortableTableRow>
+                ))}
+              </SortableContext>
+            </TableBody>
           </Table>
         </TableContainer>
-      </DragDropContext>
+      </DndContext>
 
       {/* View Workout Dialog */}
       <Dialog 
