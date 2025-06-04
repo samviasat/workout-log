@@ -120,59 +120,176 @@ const WorkoutList = ({ workouts, deleteWorkout, selectWorkout, onReorder }) => {
   };
 
   return (
-    <Container>
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell style={{ width: '48px' }}></TableCell>
-                <TableCell>Date</TableCell>
-                <TableCell>Name</TableCell>
-                <TableCell>Exercises</TableCell>
-                <TableCell>Duration</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              <SortableContext
-                items={orderedWorkouts.map(w => w.id.toString())}
-                strategy={verticalListSortingStrategy}
-              >
-                {orderedWorkouts.map((workout) => (
-                  <SortableTableRow key={workout.id} workout={workout}>
-                    <TableCell>{new Date(workout.date).toLocaleDateString()}</TableCell>
-                    <TableCell>{workout.name}</TableCell>
-                    <TableCell>
-                      {workout.exercises.map((exercise) => (
-                        <Chip key={exercise.name} label={exercise.name} size="small" />
+    <Container maxWidth="xl" className="fade-in">
+      <Box sx={{ mb: 4 }}>
+        <Typography 
+          variant="h4" 
+          component="h1" 
+          gutterBottom
+          sx={{
+            fontWeight: 700,
+            background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            color: 'transparent',
+            mb: 3,
+          }}
+        >
+          🏋️ Your Workouts
+        </Typography>
+        
+        {workouts.length === 0 ? (
+          <Paper 
+            className="modern-card"
+            sx={{ 
+              p: 6, 
+              textAlign: 'center',
+              background: 'rgba(30, 41, 59, 0.8)',
+            }}
+          >
+            <Typography variant="h6" gutterBottom color="text.secondary">
+              No workouts yet
+            </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+              Start your fitness journey by creating your first workout!
+            </Typography>
+            <Button 
+              variant="contained" 
+              onClick={() => navigate('/new')}
+              sx={{
+                background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+                  transform: 'translateY(-1px)',
+                },
+              }}
+            >
+              Create First Workout
+            </Button>
+          </Paper>
+        ) : (
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <Paper 
+              className="modern-card"
+              sx={{ 
+                overflow: 'hidden',
+                background: 'rgba(30, 41, 59, 0.8)',
+              }}
+            >
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow sx={{ 
+                      background: 'rgba(99, 102, 241, 0.1)',
+                      '& .MuiTableCell-head': {
+                        fontWeight: 600,
+                        color: 'text.primary',
+                        borderBottom: '1px solid rgba(148, 163, 184, 0.2)',
+                      }
+                    }}>
+                      <TableCell style={{ width: '48px' }}></TableCell>
+                      <TableCell>Date</TableCell>
+                      <TableCell>Name</TableCell>
+                      <TableCell>Exercises</TableCell>
+                      <TableCell>Duration</TableCell>
+                      <TableCell>Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    <SortableContext
+                      items={orderedWorkouts.map(w => w.id.toString())}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      {orderedWorkouts.map((workout) => (
+                        <SortableTableRow key={workout.id} workout={workout}>
+                          <TableCell>
+                            <Typography variant="body2" color="text.primary">
+                              {new Date(workout.date).toLocaleDateString()}
+                            </Typography>
+                          </TableCell>
+                          <TableCell>
+                            <Typography variant="body1" fontWeight={500} color="text.primary">
+                              {workout.name}
+                            </Typography>
+                          </TableCell>
+                          <TableCell>
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                              {workout.exercises.map((exercise) => (
+                                <Chip 
+                                  key={exercise.name} 
+                                  label={exercise.name} 
+                                  size="small"
+                                  sx={{
+                                    background: 'rgba(99, 102, 241, 0.2)',
+                                    color: 'primary.light',
+                                    border: '1px solid rgba(99, 102, 241, 0.3)',
+                                    '&:hover': {
+                                      background: 'rgba(99, 102, 241, 0.3)',
+                                    },
+                                  }}
+                                />
+                              ))}
+                            </Box>
+                          </TableCell>
+                          <TableCell>
+                            <Typography variant="body2" color="text.secondary">
+                              {workout.duration ? formatDuration(workout.duration * 60) : '-'}
+                            </Typography>
+                          </TableCell>
+                          <TableCell>
+                            <Box sx={{ display: 'flex', gap: 0.5 }}>
+                              <IconButton 
+                                onClick={() => handleView(workout)}
+                                sx={{
+                                  color: 'info.main',
+                                  '&:hover': {
+                                    background: 'rgba(59, 130, 246, 0.1)',
+                                    transform: 'scale(1.1)',
+                                  },
+                                }}
+                              >
+                                <VisibilityIcon />
+                              </IconButton>
+                              <IconButton 
+                                onClick={() => handleSelect(workout)}
+                                sx={{
+                                  color: 'warning.main',
+                                  '&:hover': {
+                                    background: 'rgba(245, 158, 11, 0.1)',
+                                    transform: 'scale(1.1)',
+                                  },
+                                }}
+                              >
+                                <EditIcon />
+                              </IconButton>
+                              <IconButton 
+                                onClick={() => handleDelete(workout.id)}
+                                sx={{
+                                  color: 'error.main',
+                                  '&:hover': {
+                                    background: 'rgba(239, 68, 68, 0.1)',
+                                    transform: 'scale(1.1)',
+                                  },
+                                }}
+                              >
+                                <DeleteIcon />
+                              </IconButton>
+                            </Box>
+                          </TableCell>
+                        </SortableTableRow>
                       ))}
-                    </TableCell>
-                    <TableCell>
-                      {workout.duration ? formatDuration(workout.duration * 60) : '-'}
-                    </TableCell>
-                    <TableCell>
-                      <IconButton onClick={() => handleView(workout)}>
-                        <VisibilityIcon />
-                      </IconButton>
-                      <IconButton onClick={() => handleSelect(workout)}>
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton onClick={() => handleDelete(workout.id)}>
-                        <DeleteIcon />
-                      </IconButton>
-                    </TableCell>
-                  </SortableTableRow>
-                ))}
-              </SortableContext>
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </DndContext>
+                    </SortableContext>
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Paper>
+          </DndContext>
+        )}
+      </Box>
 
       {/* View Workout Dialog */}
       <Dialog 
@@ -180,46 +297,88 @@ const WorkoutList = ({ workouts, deleteWorkout, selectWorkout, onReorder }) => {
         onClose={handleCloseView} 
         maxWidth="md" 
         fullWidth
+        PaperProps={{
+          sx: {
+            background: 'rgba(30, 41, 59, 0.9)',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(148, 163, 184, 0.1)',
+            borderRadius: 3,
+          }
+        }}
       >
-        <DialogTitle>
-          Workout Details
+        <DialogTitle sx={{ 
+          background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+          backgroundClip: 'text',
+          WebkitBackgroundClip: 'text',
+          color: 'transparent',
+          fontWeight: 700,
+        }}>
+          📋 Workout Details
         </DialogTitle>
-        <DialogContent>
+        <DialogContent sx={{ pt: 3 }}>
           {selectedWorkoutView && (
             <Box>
-              <Typography variant="h6" gutterBottom>
+              <Typography variant="h5" gutterBottom fontWeight={600} color="text.primary">
                 {selectedWorkoutView.name}
               </Typography>
-              <Typography variant="body2" color="textSecondary" gutterBottom>
-                Date: {new Date(selectedWorkoutView.date).toLocaleDateString()}
-              </Typography>
-              {selectedWorkoutView.duration && (
-                <Typography variant="body2" color="textSecondary" gutterBottom>
-                  Duration: {formatDuration(selectedWorkoutView.duration * 60)}
+              <Box sx={{ display: 'flex', gap: 3, mb: 3 }}>
+                <Typography variant="body1" color="text.secondary">
+                  📅 {new Date(selectedWorkoutView.date).toLocaleDateString()}
                 </Typography>
-              )}
+                {selectedWorkoutView.duration && (
+                  <Typography variant="body1" color="text.secondary">
+                    ⏱️ {formatDuration(selectedWorkoutView.duration * 60)}
+                  </Typography>
+                )}
+              </Box>
               
-              <Typography variant="h6" sx={{ mt: 3, mb: 2 }}>
-                Exercises
+              <Typography variant="h6" sx={{ mt: 3, mb: 2, fontWeight: 600, color: 'text.primary' }}>
+                💪 Exercises
               </Typography>
               
               {selectedWorkoutView.exercises.map((exercise, exerciseIndex) => (
-                <Paper key={exerciseIndex} sx={{ p: 2, mb: 2 }}>
-                  <Typography variant="subtitle1" gutterBottom>
+                <Paper 
+                  key={exerciseIndex} 
+                  className="modern-card"
+                  sx={{ 
+                    p: 3, 
+                    mb: 2,
+                    background: 'rgba(30, 41, 59, 0.6)',
+                  }}
+                >
+                  <Typography variant="h6" gutterBottom fontWeight={600} color="primary.light">
                     {exercise.name}
                   </Typography>
                   
                   {exercise.sets && exercise.sets.length > 0 && (
                     <Box>
-                      <Typography variant="subtitle2" gutterBottom>
-                        Sets:
+                      <Typography variant="subtitle2" gutterBottom color="text.secondary" sx={{ mb: 1 }}>
+                        📊 Sets:
                       </Typography>
-                      {exercise.sets.map((set, setIndex) => (
-                        <Typography key={setIndex} variant="body2" sx={{ ml: 2 }}>
-                          Set {setIndex + 1}: {set.weight ? `${set.weight} lbs` : 'No weight'} × {set.reps || 'No reps'} 
-                          {set.restTime && ` (Rest: ${set.restTime}s)`}
-                        </Typography>
-                      ))}
+                      <Box sx={{ ml: 2 }}>
+                        {exercise.sets.map((set, setIndex) => (
+                          <Box 
+                            key={setIndex}
+                            sx={{ 
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              gap: 1, 
+                              mb: 1,
+                              p: 1,
+                              background: 'rgba(148, 163, 184, 0.05)',
+                              borderRadius: 1,
+                            }}
+                          >
+                            <Typography variant="body2" color="text.primary" fontWeight={500}>
+                              Set {setIndex + 1}:
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              {set.weight ? `${set.weight} lbs` : 'No weight'} × {set.reps || 'No reps'}
+                              {set.restTime && ` (Rest: ${set.restTime}s)`}
+                            </Typography>
+                          </Box>
+                        ))}
+                      </Box>
                     </Box>
                   )}
                 </Paper>
@@ -227,19 +386,37 @@ const WorkoutList = ({ workouts, deleteWorkout, selectWorkout, onReorder }) => {
               
               {selectedWorkoutView.notes && (
                 <Box sx={{ mt: 3 }}>
-                  <Typography variant="h6" gutterBottom>
-                    Notes
+                  <Typography variant="h6" gutterBottom fontWeight={600} color="text.primary">
+                    📝 Notes
                   </Typography>
-                  <Typography variant="body2">
-                    {selectedWorkoutView.notes}
-                  </Typography>
+                  <Paper 
+                    className="modern-card"
+                    sx={{ 
+                      p: 2,
+                      background: 'rgba(30, 41, 59, 0.6)',
+                    }}
+                  >
+                    <Typography variant="body1" color="text.secondary">
+                      {selectedWorkoutView.notes}
+                    </Typography>
+                  </Paper>
                 </Box>
               )}
             </Box>
           )}
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseView}>
+        <DialogActions sx={{ p: 3, pt: 1 }}>
+          <Button 
+            onClick={handleCloseView}
+            sx={{
+              background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+              color: 'white',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+                transform: 'translateY(-1px)',
+              },
+            }}
+          >
             Close
           </Button>
         </DialogActions>

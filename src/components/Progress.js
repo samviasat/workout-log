@@ -208,45 +208,95 @@ const Progress = ({ workouts }) => {
   ))];
 
   return (
-    <Container>
+    <Container maxWidth="xl" className="fade-in">
       <Box sx={{ mb: 4 }}>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6} md={7}>
-            <FormControl fullWidth>
-              <InputLabel>Exercise</InputLabel>
-              <Select
-                value={selectedExercise}
-                onChange={handleExerciseChange}
-                label="Exercise"
-              >
-                <MenuItem value="all">All Exercises</MenuItem>
-                {exercises.map(exercise => (
-                  <MenuItem key={exercise} value={exercise}>{exercise}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+        <Typography 
+          variant="h4" 
+          component="h1" 
+          gutterBottom
+          sx={{
+            fontWeight: 700,
+            background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            color: 'transparent',
+            mb: 3,
+          }}
+        >
+          📊 Progress Analytics
+        </Typography>
+        
+        <Paper 
+          sx={{ 
+            p: 3,
+            background: 'rgba(30, 41, 59, 0.8)',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(148, 163, 184, 0.1)',
+            borderRadius: 3,
+          }}
+        >
+          <Grid container spacing={3}>
+            <Grid item xs={12} sm={6} md={7}>
+              <FormControl fullWidth>
+                <InputLabel>Exercise</InputLabel>
+                <Select
+                  value={selectedExercise}
+                  onChange={handleExerciseChange}
+                  label="Exercise"
+                  sx={{
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'rgba(148, 163, 184, 0.2)',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'primary.main',
+                    },
+                  }}
+                >
+                  <MenuItem value="all">All Exercises</MenuItem>
+                  {exercises.map(exercise => (
+                    <MenuItem key={exercise} value={exercise}>{exercise}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6} md={5}>
+              <FormControl fullWidth>
+                <InputLabel>View</InputLabel>
+                <Select
+                  value={selectedView}
+                  onChange={handleViewChange}
+                  label="View"
+                  sx={{
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'rgba(148, 163, 184, 0.2)',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'primary.main',
+                    },
+                  }}
+                >
+                  <MenuItem value="strength">Strength Progress</MenuItem>
+                  <MenuItem value="volume">Volume Progress</MenuItem>
+                  <MenuItem value="frequency">Workout Frequency</MenuItem>
+                  <MenuItem value="distribution">Muscle Group Distribution</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
           </Grid>
-          <Grid item xs={12} sm={6} md={5}>
-            <FormControl fullWidth>
-              <InputLabel>View</InputLabel>
-              <Select
-                value={selectedView}
-                onChange={handleViewChange}
-                label="View"
-              >
-                <MenuItem value="strength">Strength Progress</MenuItem>
-                <MenuItem value="volume">Volume Progress</MenuItem>
-                <MenuItem value="frequency">Workout Frequency</MenuItem>
-                <MenuItem value="distribution">Muscle Group Distribution</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-        </Grid>
+        </Paper>
       </Box>
 
       {showDistributionAlert && (
-        <Box sx={{ mb: 2 }}>
-          <Alert severity="warning" onClose={() => setShowDistributionAlert(false)}>
+        <Box sx={{ mb: 3 }}>
+          <Alert 
+            severity="warning" 
+            onClose={() => setShowDistributionAlert(false)}
+            sx={{
+              borderRadius: 2,
+              background: 'rgba(251, 191, 36, 0.1)',
+              border: '1px solid rgba(251, 191, 36, 0.2)',
+            }}
+          >
             Muscle Group Distribution is only available when "All Exercises" is selected. 
             Please select "All Exercises" to view muscle group distribution.
           </Alert>
@@ -256,44 +306,52 @@ const Progress = ({ workouts }) => {
       <Grid container spacing={3}>
         {selectedView === 'strength' && selectedExercise && selectedExercise !== 'all' && (
           <Grid item xs={12}>
-            <Paper sx={{ p: 2 }}>
-              <Typography variant="h6" gutterBottom>
+            <Paper className="modern-card scale-in" sx={{ p: 3 }}>
+              <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: 'text.primary' }}>
                 {selectedExercise} Progress
               </Typography>
-              <Line data={getStrengthData()} />
+              <Box sx={{ height: 400 }}>
+                <Line data={getStrengthData()} />
+              </Box>
             </Paper>
           </Grid>
         )}
 
         {selectedView === 'volume' && (
           <Grid item xs={12}>
-            <Paper sx={{ p: 2 }}>
-              <Typography variant="h6" gutterBottom>
+            <Paper className="modern-card scale-in" sx={{ p: 3 }}>
+              <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: 'text.primary' }}>
                 {selectedExercise === 'all' ? 'Total Volume Progress' : `${selectedExercise} Volume Progress`}
               </Typography>
-              <Line data={getVolumeData()} />
+              <Box sx={{ height: 400 }}>
+                <Line data={getVolumeData()} />
+              </Box>
             </Paper>
           </Grid>
         )}
 
         {selectedView === 'frequency' && (
           <Grid item xs={12}>
-            <Paper sx={{ p: 2 }}>
-              <Typography variant="h6" gutterBottom>
+            <Paper className="modern-card scale-in" sx={{ p: 3 }}>
+              <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: 'text.primary' }}>
                 {selectedExercise === 'all' ? 'Workout Frequency' : `${selectedExercise} Workout Frequency`}
               </Typography>
-              <Bar data={getWorkoutFrequency()} />
+              <Box sx={{ height: 400 }}>
+                <Bar data={getWorkoutFrequency()} />
+              </Box>
             </Paper>
           </Grid>
         )}
 
         {selectedView === 'distribution' && selectedExercise === 'all' && (
           <Grid item xs={12}>
-            <Paper sx={{ p: 2 }}>
-              <Typography variant="h6" gutterBottom>
+            <Paper className="modern-card scale-in" sx={{ p: 3 }}>
+              <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: 'text.primary' }}>
                 Muscle Group Distribution
               </Typography>
-              <Bar data={getMuscleGroupDistribution()} />
+              <Box sx={{ height: 400 }}>
+                <Bar data={getMuscleGroupDistribution()} />
+              </Box>
             </Paper>
           </Grid>
         )}
